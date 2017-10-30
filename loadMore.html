@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ch">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<style>
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		ul, li {
+			padding: 0;
+			margin: 0;
+			list-style: none;
+		}
+
+		ul > li {
+			margin: 20px 10px;
+			height: 30px;
+			border: 1px solid;
+			font-size: 16px;
+			line-height: 30px;
+			padding-left: 10px;
+		}
+
+		ul > li:hover {
+			background: red;
+		}
+
+		#btn {
+			border: 1px solid orange;
+			width: 100px;
+			padding: 10px 8px;
+			text-align: center;
+			border-radius: 6px;
+			margin: 0 auto;
+			transition: all ease .2s;
+		}
+
+		#btn:hover {
+			background: orange;
+			cursor: pointer;
+			transition: all ease .2s;
+		}
+
+	</style>
+	<title>加载更多</title>
+</head>
+<body>
+<ul id="listContent"></ul>
+<div id="btn"><a>加载更多</a></div>
+<script>
+	// 1.用Ajax请求数据
+	// 2.什么样的数据
+	//    {
+	//			"list1":"新闻1",
+	//			"list2":"新闻2",
+	//			"list3":"新闻3",
+	//			"list4":"新闻4",
+	//			"list5":"新闻5",
+	//    }
+	// 3.把数据的值用添加到 innerText
+
+	//	btn.addEventListener('click',function () {
+	//		var data = getData() // 得到数据
+	//		var html = getHtml(data) // 把数据拼接成HTML
+	//		render(html) // 把拼接完成的HTML放到container中
+	//	})
+
+	// 前后端关于接口的约定
+	// 1.接口的类型是什么：是get还是post
+	// 2.接口的名字是什么【比如请求的路径】
+	// 3.参数什么
+	// 4.后端发回什么样的数据【格式、类型等等】
+
+	//	1.GET
+	//	2./loadMore
+	//	3. {
+	//			index:3,
+	//			length:5
+	//		}
+	//  4.['news1','news2'...'news5']
+
+	var ctnNode = document.querySelector('#listContent')
+	var btnNode = document.querySelector('#btn')
+	var index = 0
+
+	btnNode.addEventListener('click', function (e) {
+		e.preventDefault()
+		var xhr = new XMLHttpRequest()
+		// xhr对象一定要重新创建，所以放在click事件里面
+		var docFragment = document.createDocumentFragment()
+		// fragment也一定要重新创建
+
+		xhr.addEventListener('readystatechange', function () {
+			if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 300 || xhr.status === 304) {
+				var data = JSON.parse(xhr.responseText)
+				// ['news1','news2'...'news5']
+				console.log(data)
+				for (var i = 0; i < data.length; i++) {
+					var newLi = document.createElement('li')
+					var newContent = document.createTextNode(data[i])
+					newLi.appendChild(newContent)
+					docFragment.appendChild(newLi)
+				}
+				ctnNode.appendChild(docFragment)
+				index += 5
+				console.log(index)
+			}
+		})
+
+		xhr.open('GET', '/loadMore?index=' + index + '&length=5', true)
+		xhr.send()
+	})
+</script>
+</body>
+</html>
